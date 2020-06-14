@@ -31,7 +31,53 @@ set smarttab
 set hlsearch
 set incsearch
 set ignorecase
-
+"==================================================
+"Enable Altkey in terminal
+"==================================================
+set ttimeout
+set ttimeoutlen=50
+function! Terminal_MetaMode(mode)
+    set ttimeout
+    if $TMUX != ''
+        set ttimeoutlen=30
+    elseif &ttimeoutlen > 80 || &ttimeoutlen <= 0
+        set ttimeoutlen=80
+    endif
+    if has('nvim') || has('gui_running')
+        return
+    endif
+    function! s:metacode(mode, key)
+        if a:mode == 0
+            exec "set <M-".a:key.">=\e".a:key
+        else
+            exec "set <M-".a:key.">=\e]{0}".a:key."~"
+        endif
+    endfunc
+    for i in range(10)
+        call s:metacode(a:mode, nr2char(char2nr('0') + i))
+    endfor
+    for i in range(26)
+        call s:metacode(a:mode, nr2char(char2nr('a') + i))
+        call s:metacode(a:mode, nr2char(char2nr('A') + i))
+    endfor
+    if a:mode != 0
+        for c in [',', '.', '/', ';', '[', ']', '{', '}']
+            call s:metacode(a:mode, c)
+        endfor
+        for c in ['?', ':', '-', '_']
+            call s:metacode(a:mode, c)
+        endfor
+    else
+        for c in [',', '.', '/', ';', '{', '}']
+            call s:metacode(a:mode, c)
+        endfor
+        for c in ['?', ':', '-', '_']
+            call s:metacode(a:mode, c)
+        endfor
+    endif
+endfunc
+"command! -nargs=0 -bang VimMetaInit call Terminal_MetaMode(<bang>0)
+call Terminal_MetaMode(0)
 "==================================================
 "keymap configuration
 "==================================================
@@ -232,7 +278,6 @@ let g:vimwiki_list = [{'path': '~/vimwiki/',
 					\  'ext': '.md'}]
 
 
-let g:indentLine_char = '┊'
 
 "let :gutentags_plus_nomap = 1
 noremap <silent> <leader>gs :GscopeFind s <C-R><C-W><cr>
@@ -253,13 +298,30 @@ inoremap <m-d> <c-\><c-o>:PreviewScroll +1<cr>
 
 autocmd FileType qf nnoremap <silent><buffer> p :PreviewQuickfix<cr>
 autocmd FileType qf nnoremap <silent><buffer> P :PreviewClose<cr>
-
-
 "--------------------------------------------------
 "LeaderF configuration
 "--------------------------------------------------
 let g:Lf_Ctags = "/usr/local/bin/ctags"
+"let g:Lf_ShortcutF = '<m-p>'
+"let g:Lf_ShortcutB = '<m-b>'
+noremap <m-m> :LeaderfMru<cr>
+noremap <m-f> :LeaderfFunction!<cr>
+noremap <m-b> :LeaderfBuffer<cr>
+noremap <m-t> :LeaderfTag<cr>
+let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
 
+let g:Lf_RootMarkers = ['.project', '.root', '.svn', '.git']
+let g:Lf_WorkingDirectoryMode = 'Ac'
+let g:Lf_WindowHeight = 0.30
+let g:Lf_CacheDirectory = expand('~/.vim/cache')
+let g:Lf_ShowRelativePath = 0
+let g:Lf_HideHelp = 1
+"let g:Lf_StlColorscheme = 'powerline'
+let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
+"--------------------------------------------------
+"indent display configuration
+"--------------------------------------------------
+let g:indentLine_char = '┊'
 "--------------------------------------------------
 "FSwitch configuration
 "--------------------------------------------------
@@ -279,7 +341,6 @@ nnoremap <silent> <leader>sj :FSBelow<cr>
 nnoremap <silent> <leader>sj :FSBelow<cr>
 nnoremap <silent> <leader>sJ :FSSplitBelow<cr>
 nnoremap <silent> <leader>sd :!mkdir -p %:p:h<cr>
-
 "--------------------------------------------------
 "cscope configuration
 "--------------------------------------------------
@@ -307,8 +368,6 @@ nnoremap <C-a>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
 nnoremap <C-a>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
 nnoremap <C-a>d :cs find d <C-R>=expand("<cword>")<CR><CR>
 nnoremap <C-a>a :cs find a <C-R>=expand("<cword>")<CR><CR>
-
 "--------------------------------------------------
 "other configuration
 "--------------------------------------------------
-imap <c-;> <Esc>

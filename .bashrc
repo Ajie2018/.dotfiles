@@ -111,8 +111,6 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-
-
 #usr_configuration
 PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin
 alias ll='ls -l'
@@ -130,6 +128,19 @@ alias ob='vim $HOME/.bashrc'
 alias spin='sudo apt-get install'
 alias spup='sudo apt-get update'
 alias spch='sudo apt-cache search'
-
-
-
+#===git alias====
+alias gti='git init'
+alias gta='git add'
+alias gtb='git branch'
+alias gtc='git commit -m'
+alias gtd='git diff'
+alias gtf='git fetch'
+alias gtg='git grep'
+alias gtl='git log'
+alias gtm='git merge'
+alias gtn='git clone'
+alias gto='git checkout'
+alias gtp='git push'
+alias gtr='git remote'
+alias gts='git status'
+alias gtw='git whatchanged'
